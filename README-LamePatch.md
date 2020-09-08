@@ -1,5 +1,7 @@
 # ラメエフェクト追加パッチ for Sunao Shader 1.3.2
 
+![Screenshot](https://user-images.githubusercontent.com/61717977/92479230-3b890e80-f21e-11ea-80b6-dc2d2f0c9162.png)
+
 ## 注意事項
 
 - パッチを適用する前に必ずバックアップをお取りください（gitに慣れている方はコミットを作成してください）。

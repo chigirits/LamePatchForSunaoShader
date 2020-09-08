@@ -11,7 +11,8 @@
 
 1. 本パッチを既に適用済みでアップデートする場合は、プロジェクトから一旦 `Assets/Sunao Shader` を削除
 2. [Sunao Shader 1.3.2](https://booth.pm/ja/items/1723985) をUnityプロジェクトにインポート
-3. Windows Explorer にてプロジェクト内の `Assets/Sunao Shader/` フォルダを開き、その直下に含まれる `Editor` `Shader` フォルダを本リポジトリに含まれる同名のフォルダの内容でそれぞれ上書き（フォルダ内に元々存在している他のファイルは削除しないこと）
+3. [本パッチをダウンロード](https://github.com/chigirits/LamePatchForSunaoShader/archive/master.zip) して解凍
+4. Windows Explorer にてプロジェクト内の `Assets/Sunao Shader/` フォルダを開き、その直下に含まれる `Editor` `Shader` フォルダを本リポジトリに含まれる同名のフォルダの内容でそれぞれ上書き（フォルダ内に元々存在している他のファイルは削除しないこと）
 
 ## マテリアルへの適用
 

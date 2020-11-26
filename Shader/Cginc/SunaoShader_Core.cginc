@@ -16,6 +16,7 @@
 
 //----Main
 	UNITY_DECLARE_TEX2D(_MainTex);
+	UNITY_DECLARE_TEX2D(_BackSideTex);
 	uniform float4    _MainTex_ST;
 	uniform float4    _Color;
 	uniform float     _Cutout;
@@ -153,6 +154,7 @@
 	uniform float     _PointLight;
 	uniform float     _SHLight;
 	uniform bool      _LightLimitter;
+	uniform float     _MinimumLight;
 
 	uniform bool      _EnableGammaFix;
 	uniform float     _GammaR;

@@ -3,8 +3,17 @@
 //                      Copyright (c) 2020 揚茄子研究所
 //--------------------------------------------------------------
 
+#ifdef DOUBLE_SIDED
+        #define FRAG_ARGS VOUT IN, fixed facing : VFACE
+        #define SAMPLE_TEX2D_SAMPLER(tex,samplertex,coord) (0 <= facing ? UNITY_SAMPLE_TEX2D_SAMPLER(tex,samplertex,coord) : UNITY_SAMPLE_TEX2D_SAMPLER(tex,_BackSideTex,coord))
+        #define SAMPLE_TEX2D(tex,coord) (0 <= facing ? UNITY_SAMPLE_TEX2D(tex,coord) : UNITY_SAMPLE_TEX2D(_BackSideTex,coord))
+#else
+        #define FRAG_ARGS VOUT IN
+        #define SAMPLE_TEX2D_SAMPLER(tex,samplertex,coord) UNITY_SAMPLE_TEX2D_SAMPLER(tex,samplertex,coord)
+        #define SAMPLE_TEX2D(tex,coord) UNITY_SAMPLE_TEX2D(tex,coord)
+#endif
 
-float4 frag (VOUT IN) : COLOR {
+float4 frag (FRAG_ARGS) : COLOR {
 
 //-------------------------------------メインカラー
 	float4 OUT          = float4(0.0f , 0.0f , 0.0f , 1.0f);
@@ -15,11 +24,11 @@ float4 frag (VOUT IN) : COLOR {
 	if (_UVAnimOtherTex) SubUV = MainUV;
 
 	#if defined(TRANSPARENT) || defined(CUTOUT)
-	       OUT.a        = saturate(UNITY_SAMPLE_TEX2D(_MainTex , MainUV).a * _Color.a * _Alpha);
-	       OUT.a       *= lerp(1.0f , MonoColor(UNITY_SAMPLE_TEX2D_SAMPLER(_AlphaMask  , _MainTex , SubUV).rgb) , _AlphaMaskStrength);
+	       OUT.a        = saturate(SAMPLE_TEX2D(_MainTex , MainUV).a * _Color.a * _Alpha);
+	       OUT.a       *= lerp(1.0f , MonoColor(SAMPLE_TEX2D_SAMPLER(_AlphaMask  , _MainTex , SubUV).rgb) , _AlphaMaskStrength);
 	#endif
 
-	float3 Color        = UNITY_SAMPLE_TEX2D(_MainTex , MainUV).rgb;
+	float3 Color        = SAMPLE_TEX2D(_MainTex , MainUV).rgb;
 	       Color        = Color * _Color.rgb * _Bright * IN.color;
 
 //----デカール
@@ -29,11 +38,22 @@ float4 frag (VOUT IN) : COLOR {
 
 		float2   DecalUV       = (float2)0.0f;
 		float2x2 DecalRot      = float2x2(IN.decal.z, -IN.decal.w, IN.decal.w, IN.decal.z);
-		         DecalUV       = IN.uv  - float2(_DecalPosX , _DecalPosY) + IN.decal2.zw;
+
+		if  (_DecalMirror <  4) {
+			DecalUV    = IN.uv   - float2(_DecalPosX , _DecalPosY) + IN.decal2.zw;
+		} else {
+			DecalUV.x  = 0.5f + (floor(_DecalPosX + 0.5f) - 0.5f) * abs(2.0f * IN.uv.x -1.0f);
+			DecalUV.y  = IN.uv.y;
+			DecalUV    = DecalUV - float2(_DecalPosX , _DecalPosY) + IN.decal2.zw;
+		}
 
 		if ((_DecalMirror == 1) || (_DecalMirror == 3)) {
-			DecalUV = lerp(DecalUV , float2(-DecalUV.x , DecalUV.y) , saturate(IN.tangent.w));
+			DecalUV    = lerp(DecalUV , float2(-DecalUV.x , DecalUV.y) , saturate(IN.tangent.w));
 			DecalUV.x += IN.decal2.z * saturate(IN.tangent.w) * 2.0f;
+		}
+		if  (_DecalMirror == 5) {
+			DecalUV    = lerp(DecalUV , float2(-DecalUV.x , DecalUV.y) , floor(IN.uv.x + 0.5f));
+			DecalUV.x += IN.decal2.z * floor(IN.uv.x + 0.5f) * 2.0f;
 		}
 
 		         DecalUV       = mul(DecalRot, DecalUV - IN.decal2.zw) + IN.decal2.zw;
@@ -73,7 +93,7 @@ float4 frag (VOUT IN) : COLOR {
 	}
 
 //----オクルージョン
-	if (_OcclusionMode == 1) Color *= lerp(1.0f , UNITY_SAMPLE_TEX2D_SAMPLER(_OcclusionMap , _MainTex , SubUV).rgb , _OcclusionStrength);
+	if (_OcclusionMode == 1) Color *= lerp(1.0f , SAMPLE_TEX2D_SAMPLER(_OcclusionMap , _MainTex , SubUV).rgb , _OcclusionStrength);
 
 //-------------------------------------カットアウト
 	#ifdef CUTOUT
@@ -93,7 +113,7 @@ float4 frag (VOUT IN) : COLOR {
 	       Normal.z     = dot(tan_sz , NormalMap);
 
 //-------------------------------------シェーディング
-	float3 ShadeMask    = UNITY_SAMPLE_TEX2D_SAMPLER(_ShadeMask , _MainTex , SubUV).rgb * _Shade;
+	float3 ShadeMask    = SAMPLE_TEX2D_SAMPLER(_ShadeMask , _MainTex , SubUV).rgb * _Shade;
 	float3 LightBoost   = 1.0f + (tex2D(_LightMask, SubUV).rgb * (_LightBoost - 1.0f));
 
 //----ディフューズ
@@ -154,7 +174,7 @@ float4 frag (VOUT IN) : COLOR {
 	#ifdef PASS_FB
 		float3 SHDiffColor  = LightingCalc(IN.shmax , SHDiffuse , ShadeColor , ShadeMask);
 		       SHDiffColor  = saturate(SHDiffColor - IN.shmin) + IN.shmin;
-		if (_OcclusionMode == 0) SHDiffColor *= lerp(1.0f , UNITY_SAMPLE_TEX2D_SAMPLER(_OcclusionMap , _MainTex , SubUV).rgb , _OcclusionStrength);
+		if (_OcclusionMode == 0) SHDiffColor *= lerp(1.0f , SAMPLE_TEX2D_SAMPLER(_OcclusionMap , _MainTex , SubUV).rgb , _OcclusionStrength);
 
 		float3 VL4Diff[4];
 		       VL4Diff[0]   = LightingCalc(VLight0 , VLDiffuse.x , ShadeColor , ShadeMask);
@@ -213,7 +233,7 @@ float4 frag (VOUT IN) : COLOR {
 	#endif
 
 	if (ParallaxFlag) {
-		float  Height      = (1.0f - MonoColor(UNITY_SAMPLE_TEX2D_SAMPLER(_ParallaxDepthMap , _MainTex , IN.pduv).rgb)) * _ParallaxDepth;
+		float  Height      = (1.0f - MonoColor(SAMPLE_TEX2D_SAMPLER(_ParallaxDepthMap , _MainTex , IN.pduv).rgb)) * _ParallaxDepth;
 		float2 ParallaxUV  = IN.peuv.xy;
 		       ParallaxUV -= normalize(IN.pview).xz * Height * _ParallaxMap_ST.xy;
 		       Parallax    = _ParallaxEmission * _ParallaxColor.rgb;
@@ -277,7 +297,7 @@ float4 frag (VOUT IN) : COLOR {
 //----マットキャップ
 		#ifdef PASS_FB
 			float2 MatCapUV     = float2(dot(IN.matcaph , Normal), dot(IN.matcapv , Normal)) * 0.5f + 0.5f;
-			       MatCapture   = UNITY_SAMPLE_TEX2D_SAMPLER(_MatCap , _MainTex , MatCapUV).rgb * _MatCapStrength;
+			       MatCapture   = SAMPLE_TEX2D_SAMPLER(_MatCap , _MainTex , MatCapUV).rgb * _MatCapStrength;
 
 			if (_MatCapLit == 1) MatCapture *= saturate(LightBase + VLightBase);
 			if (_MatCapLit == 2) MatCapture *= saturate(IN.shmax);
@@ -286,7 +306,7 @@ float4 frag (VOUT IN) : COLOR {
 		#ifdef PASS_FA
 			if ((_MatCapLit  == 1) || (_MatCapLit  == 3)) {
 				float2 MatCapUV    = float2(dot(IN.matcaph , Normal), dot(IN.matcapv , Normal)) * 0.5f + 0.5f;
-				       MatCapture  = UNITY_SAMPLE_TEX2D_SAMPLER(_MatCap , _MainTex , MatCapUV).rgb * _MatCapStrength;
+				       MatCapture  = SAMPLE_TEX2D_SAMPLER(_MatCap , _MainTex , MatCapUV).rgb * _MatCapStrength;
 				       MatCapture *= saturate(LightBase);
 			}
 		#endif
@@ -301,7 +321,7 @@ float4 frag (VOUT IN) : COLOR {
 	#ifdef PASS_FB
 		if (_RimLitEnable) {
 			       RimLight  = RimLightCalc(Normal , IN.view , _RimLit , _RimLitGradient);
-			       RimLight *= _RimLitColor.rgb * _RimLitColor.a * UNITY_SAMPLE_TEX2D_SAMPLER(_RimLitMask , _MainTex , SubUV).rgb;
+			       RimLight *= _RimLitColor.rgb * _RimLitColor.a * SAMPLE_TEX2D_SAMPLER(_RimLitMask , _MainTex , SubUV).rgb;
 			if (_RimLitLighthing) RimLight *= saturate(LightBase + IN.shmax + VLightBase);
 			if (_RimLitTexColor ) RimLight *= Color;
 		}
@@ -309,7 +329,7 @@ float4 frag (VOUT IN) : COLOR {
 	#ifdef PASS_FA
 		if (_RimLitEnable && _RimLitLighthing) {
 			       RimLight  = RimLightCalc(Normal , IN.view , _RimLit , _RimLitGradient);
-			       RimLight *= _RimLitColor.rgb * _RimLitColor.a * UNITY_SAMPLE_TEX2D_SAMPLER(_RimLitMask , _MainTex , SubUV).rgb;
+			       RimLight *= _RimLitColor.rgb * _RimLitColor.a * SAMPLE_TEX2D_SAMPLER(_RimLitMask , _MainTex , SubUV).rgb;
 			       RimLight *= saturate(LightBase);
 			if (_RimLitTexColor ) RimLight *= Color;
 		}
@@ -370,7 +390,7 @@ float4 frag (VOUT IN) : COLOR {
 	}
 
 //----オクルージョンマスク
-	if (_OcclusionMode == 2) OUT.rgb *= lerp(1.0f , UNITY_SAMPLE_TEX2D_SAMPLER(_OcclusionMap , _MainTex , SubUV).rgb , _OcclusionStrength);
+	if (_OcclusionMode == 2) OUT.rgb *= lerp(1.0f , SAMPLE_TEX2D_SAMPLER(_OcclusionMap , _MainTex , SubUV).rgb , _OcclusionStrength);
 
 //----エミッションのテクスチャアルファ無視
 	#ifdef TRANSPARENT

@@ -9,7 +9,7 @@
 // see LICENSE or http://sunao.orz.hm/agenasulab/ss/LICENSE
 //--------------------------------------------------------------
 
-Shader "Sunao Shader/Opaque" {
+Shader "Sunao Shader/[Stencil]/Read" {
 
 
 	Properties {
@@ -137,15 +137,6 @@ Shader "Sunao Shader/Opaque" {
 		_IgnoreTexAlphaE   ("Ignore Texture Alpha"      , int) = 0
 		_EmissionInTheDark ("Only in the Dark"          , Range(  0.0,  1.0)) = 0.0
 
-		[SToggle]
-		_SparkleEnable     ("Enable Sparkle"            , int) = 0
-		_SparkleParameterMap("Sparkle Parameter Map"    , 2D) = "white" {}
-		_SparkleDensity    ("Sparkle Density"           , Range(  0.0,  1.0)) = 0.6
-		_SparkleSmoothness ("Sparkle Smoothness"        , Range(  0.0,  1.0)) = 0.1
-		_SparkleFineness   ("Sparkle Fineness"          , Range(  0.0,  1.0)) = 0.5
-		_SparkleAngularBlink("Sparkle Angular Blink"    , Range(  0.0, 10.0)) = 2.0
-		_SparkleTimeBlink  ("Sparkle Time Blink"        , Range(  0.0, 10.0)) = 0.0
-
 
 		[SToggle]
 		_ParallaxEnable    ("Enable Parallax Emission"  , int) = 0
@@ -262,7 +253,7 @@ Shader "Sunao Shader/Opaque" {
 		[HideInInspector] _RimLightingFO   ("Rim Lighting FO"   , int) = 0
 		[HideInInspector] _OtherSettingsFO ("Other Settings FO" , int) = 0
 
-		[HideInInspector] _SunaoShaderType ("ShaderType"        , int) = 0
+		[HideInInspector] _SunaoShaderType ("ShaderType"        , int) = 6
 
 		[HideInInspector] _VersionH        ("Version H"         , int) = 0
 		[HideInInspector] _VersionM        ("Version M"         , int) = 0
@@ -278,8 +269,8 @@ Shader "Sunao Shader/Opaque" {
 
 		Tags {
 			"IgnoreProjector" = "True"
-			"RenderType"      = "Opaque"
-			"Queue"           = "Geometry"
+			"RenderType"      = "TransparentCutout"
+			"Queue"           = "AlphaTest+1"
 		}
 
 
@@ -290,6 +281,11 @@ Shader "Sunao Shader/Opaque" {
 
 			Cull [_Culling]
 			ZWrite [_EnableZWrite]
+
+			Stencil {
+				Ref  [_StencilNumb]
+				Comp [_StencilCompMode]
+			}
 
 			CGPROGRAM
 			#pragma vertex vert
@@ -299,6 +295,37 @@ Shader "Sunao Shader/Opaque" {
 			#pragma target 4.5
 
 			#define PASS_FB
+			#define CUTOUT
+
+			#include "./cginc/SunaoShader_Core.cginc"
+
+			ENDCG
+		}
+
+
+		Pass {
+			Tags {
+				"LightMode"  = "ForwardAdd"
+			}
+
+			Cull [_Culling]
+			Blend One One
+			ZWrite Off
+
+			Stencil {
+				Ref  [_StencilNumb]
+				Comp [_StencilCompMode]
+			}
+
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+			#pragma multi_compile_fwdadd
+			#pragma multi_compile_fog
+			#pragma target 4.5
+
+			#define PASS_FA
+			#define CUTOUT
 
 			#include "./cginc/SunaoShader_Core.cginc"
 
@@ -314,6 +341,11 @@ Shader "Sunao Shader/Opaque" {
 			Cull Front
 			ZWrite [_EnableZWrite]
 
+			Stencil {
+				Ref  [_StencilNumb]
+				Comp [_StencilCompMode]
+			}
+
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
@@ -322,6 +354,7 @@ Shader "Sunao Shader/Opaque" {
 			#pragma target 4.5
 
 			#define PASS_OL_FB
+			#define CUTOUT
 
 			#include "./cginc/SunaoShader_OL.cginc"
 
@@ -338,6 +371,11 @@ Shader "Sunao Shader/Opaque" {
 			Blend One One
 			ZWrite Off
 
+			Stencil {
+				Ref  [_StencilNumb]
+				Comp [_StencilCompMode]
+			}
+
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
@@ -346,33 +384,9 @@ Shader "Sunao Shader/Opaque" {
 			#pragma target 4.5
 
 			#define PASS_OL_FA
+			#define CUTOUT
 
 			#include "./cginc/SunaoShader_OL.cginc"
-
-			ENDCG
-		}
-
-
-
-		Pass {
-			Tags {
-				"LightMode"  = "ForwardAdd"
-			}
-
-			Cull [_Culling]
-			Blend One One
-			ZWrite Off
-
-			CGPROGRAM
-			#pragma vertex vert
-			#pragma fragment frag
-			#pragma multi_compile_fwdadd
-			#pragma multi_compile_fog
-			#pragma target 4.5
-
-			#define PASS_FA
-
-			#include "./cginc/SunaoShader_Core.cginc"
 
 			ENDCG
 		}
@@ -385,6 +399,11 @@ Shader "Sunao Shader/Opaque" {
 
 			ZWrite On
 			ZTest LEqual
+
+			Stencil {
+				Ref  [_StencilNumb]
+				Comp [_StencilCompMode]
+			}
 
 			CGPROGRAM
 			#pragma vertex vert
@@ -404,4 +423,3 @@ Shader "Sunao Shader/Opaque" {
 
 	CustomEditor "SunaoShader.GUI"
 }
-

@@ -1,4 +1,4 @@
-# ラメエフェクト追加パッチ for Sunao Shader 1.3.2
+# ラメエフェクト追加パッチ for Sunao Shader 1.4.0
 
 ![Screenshot](https://user-images.githubusercontent.com/61717977/92479230-3b890e80-f21e-11ea-80b6-dc2d2f0c9162.png)
 
@@ -12,7 +12,7 @@
 ## パッチの適用手順
 
 1. 本パッチを既に適用済みでアップデートする場合は、プロジェクトから一旦 `Assets/Sunao Shader` を削除
-2. [Sunao Shader 1.3.2](https://booth.pm/ja/items/1723985) をUnityプロジェクトにインポート
+2. [Sunao Shader 1.4.0](https://booth.pm/ja/items/1723985) をUnityプロジェクトにインポート（旧バージョンは [こちら](http://suna.ooo/agenasulab/ss/version) からダウンロードできるようです）
 3. [本パッチをダウンロード](https://github.com/chigirits/LamePatchForSunaoShader/archive/master.zip) して解凍
 4. Windows Explorer にてプロジェクト内の `Assets/Sunao Shader/` フォルダを開き、その直下に含まれる `Editor` `Shader` フォルダを本リポジトリに含まれる同名のフォルダの内容でそれぞれ上書き（フォルダ内に元々存在している他のファイルは削除しないこと）
 
@@ -60,6 +60,12 @@
   3. レベル補正（またはトーンカーブ）の出力最大値をRGBチャンネルごとに目的の値にする（調整するパラメータが百分率で表されていれば目的の値の100倍、輝度であれば255倍と考える）。
   4. 画像をエクスポートし、Unity上で効果を確認する。
   5. 満足の行く結果になるまで 3.～4. を繰り返して調整する。
+
+## おまけ
+
+ラメエフェクト以外に、以下の別バリエーションを使用できます。
+
+- `Sunao Shader/Opaque Double Sided` : 裏面に別テクスチャを指定できる Opaque シェーダです。`Back Side Texture` に裏面用テクスチャを指定してください。
 
 ## ライセンス
 

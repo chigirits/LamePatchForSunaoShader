@@ -1,5 +1,5 @@
 ﻿//--------------------------------------------------------------
-//              Sunao Shader    Ver 1.3.1
+//              Sunao Shader    Ver 1.4.0
 //
 //                      Copyright (c) 2020 揚茄子研究所
 //                              Twitter : @SUNAO_VRC
@@ -16,7 +16,8 @@ Shader "Sunao Shader/Opaque Sparkles" {
 
 		[NoScaleOffset]
 		_MainTex           ("Main Texture"              , 2D) = "white" {}
-		_Color             ("Color"                     ,  Color) = (1,1,1,1)
+		_BackSideTex       ("Back Side Texture"         , 2D) = "white" {}
+		_Color             ("Color"                     , Color) = (1,1,1,1)
 		_Alpha             ("Alpha"                     , Range( 0.0,  2.0)) = 1.0
 		_Cutout            ("Cutout"                    , Range( 0.0,  1.0)) = 0.5
 
@@ -44,19 +45,20 @@ Shader "Sunao Shader/Opaque Sparkles" {
 		[SToggle]
 		_UVAnimOtherTex    ("Animation Other Maps"      , int) = 1
 
+
 		[SToggle]
 		_DecalEnable       ("Enable Decal"              , int) = 0
 		_DecalTex          ("Decal Texture"             , 2D) = "white" {}
-		_DecalColor        ("Decal Color"               ,  Color) = (1,1,1,1)
+		_DecalColor        ("Decal Color"               , Color) = (1,1,1,1)
 		_DecalPosX         ("Position X"                , Range( 0.0, 1.0)) = 0.5
 		_DecalPosY         ("Position Y"                , Range( 0.0, 1.0)) = 0.5
 		_DecalSizeX        ("Size X"                    , Range( 0.0, 1.0)) = 0.5
 		_DecalSizeY        ("Size Y"                    , Range( 0.0, 1.0)) = 0.5
 		_DecalRotation     ("Rotation"                  , Range(-180.0, 180.0)) = 0.0
 
-		[Enum(Override , 0 ,Add , 1 , Multiply , 2 , Multiply(Mono) , 3)]
+		[Enum(Override , 0 , Add , 1 , Multiply , 2 , Multiply(Mono) , 3)]
 		_DecalMode         ("Decal Mode"                , int) = 0
-		[Enum(Normal , 0 ,Fixed , 1 , Mirror1 , 2 , Mirror2 , 3)]
+		[Enum(Normal , 0 , Fixed , 1 , Mirror1 , 2 , Mirror2 , 3 , Copy(Mirror) , 4 , Copy(Fixed) , 5)]
 		_DecalMirror       ("Decal Mirror Mode"         , int) = 0
 
 		_DecalScrollX      ("Scroll X"                  , Range(-10.0, 10.0)) = 0.0
@@ -64,6 +66,11 @@ Shader "Sunao Shader/Opaque Sparkles" {
 		_DecalAnimation    ("Animation Speed"           , Range(  0.0, 10.0)) = 0.0
 		_DecalAnimX        ("Animation X Size"          , int) = 1
 		_DecalAnimY        ("Animation Y Size"          , int) = 1
+
+
+		_StencilNumb       ("Stencil Number"            , int) = 4
+		[Enum(NotEqual , 6 , Equal , 3 , Less , 2 , LessEqual , 4 , Greater , 5 , GreaterEqual , 7)]
+		_StencilCompMode   ("Stencil Compare Mode"      , int) = 6
 
 
 		[NoScaleOffset]
@@ -139,7 +146,6 @@ Shader "Sunao Shader/Opaque Sparkles" {
 		_SparkleAngularBlink("Sparkle Angular Blink"    , Range(  0.0, 10.0)) = 2.0
 		_SparkleTimeBlink  ("Sparkle Time Blink"        , Range(  0.0, 10.0)) = 0.0
 
-
 		[SToggle]
 		_ParallaxEnable    ("Enable Parallax Emission"  , int) = 0
 		_ParallaxMap       ("Parallax Emission Mask"    , 2D) = "white" {}
@@ -188,6 +194,8 @@ Shader "Sunao Shader/Opaque Sparkles" {
 		_MatCapTexColor    ("Tex Color for MatCap"      , int) = 0
 		[SToggle]
 		_SpecularSH        ("SH Light Specular"         , int) = 1
+		[SToggle]
+		_SpecularMask      ("Use Mask for Specular"     , int) = 1
 		[Enum(None , 0 , RealTime , 1 , SH , 2 , Both , 3)]
 		_ReflectLit        ("Light Color for Reflection", int) = 0
 		[Enum(None , 0 , RealTime , 1 , SH , 2 , Both , 3)]
@@ -225,6 +233,7 @@ Shader "Sunao Shader/Opaque Sparkles" {
 		_PointLight        ("Point Light"               , Range( 0.0,  2.0)) = 1.0
 		[SToggle]
 		_LightLimitter     ("Light Limitter"            , int) = 1
+		_MinimumLight      ("Minimum Light Limit"       , Range( 0.0,  1.0)) = 0.0
 
 		[SToggle]
 		_EnableGammaFix    ("Enable Gamma Fix"          , int) = 0
@@ -251,6 +260,8 @@ Shader "Sunao Shader/Opaque Sparkles" {
 		[HideInInspector] _ReflectionFO    ("Reflection FO"     , int) = 0
 		[HideInInspector] _RimLightingFO   ("Rim Lighting FO"   , int) = 0
 		[HideInInspector] _OtherSettingsFO ("Other Settings FO" , int) = 0
+
+		[HideInInspector] _SunaoShaderType ("ShaderType"        , int) = 0
 
 		[HideInInspector] _VersionH        ("Version H"         , int) = 0
 		[HideInInspector] _VersionM        ("Version M"         , int) = 0
@@ -293,7 +304,6 @@ Shader "Sunao Shader/Opaque Sparkles" {
 
 			ENDCG
 		}
-
 
 
 		Pass {
@@ -345,6 +355,7 @@ Shader "Sunao Shader/Opaque Sparkles" {
 		}
 
 
+
 		Pass {
 			Tags {
 				"LightMode"  = "ForwardAdd"
@@ -368,7 +379,6 @@ Shader "Sunao Shader/Opaque Sparkles" {
 
 			ENDCG
 		}
-
 
 
 		Pass {
@@ -397,3 +407,4 @@ Shader "Sunao Shader/Opaque Sparkles" {
 
 	CustomEditor "SunaoShader.GUI"
 }
+

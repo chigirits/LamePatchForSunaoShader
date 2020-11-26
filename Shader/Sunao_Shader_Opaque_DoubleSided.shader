@@ -9,7 +9,7 @@
 // see LICENSE or http://sunao.orz.hm/agenasulab/ss/LICENSE
 //--------------------------------------------------------------
 
-Shader "Sunao Shader/Opaque" {
+Shader "Sunao Shader/Opaque Double Sided" {
 
 
 	Properties {
@@ -299,6 +299,7 @@ Shader "Sunao Shader/Opaque" {
 			#pragma target 4.5
 
 			#define PASS_FB
+			#define DOUBLE_SIDED
 
 			#include "./cginc/SunaoShader_Core.cginc"
 
@@ -322,6 +323,7 @@ Shader "Sunao Shader/Opaque" {
 			#pragma target 4.5
 
 			#define PASS_OL_FB
+			#define DOUBLE_SIDED
 
 			#include "./cginc/SunaoShader_OL.cginc"
 
@@ -346,6 +348,7 @@ Shader "Sunao Shader/Opaque" {
 			#pragma target 4.5
 
 			#define PASS_OL_FA
+			#define DOUBLE_SIDED
 
 			#include "./cginc/SunaoShader_OL.cginc"
 
@@ -371,6 +374,7 @@ Shader "Sunao Shader/Opaque" {
 			#pragma target 4.5
 
 			#define PASS_FA
+			#define DOUBLE_SIDED
 
 			#include "./cginc/SunaoShader_Core.cginc"
 
@@ -393,6 +397,7 @@ Shader "Sunao Shader/Opaque" {
 			#pragma target 4.5
 
 			#define PASS_SC
+			#define DOUBLE_SIDED
 
 			#include "./cginc/SunaoShader_SC.cginc"
 

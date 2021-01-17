@@ -1,4 +1,4 @@
-# ラメエフェクト追加パッチ for Sunao Shader 1.4.0
+# ラメエフェクト追加パッチ for Sunao Shader 1.4.2
 
 ![Screenshot](https://user-images.githubusercontent.com/61717977/92479230-3b890e80-f21e-11ea-80b6-dc2d2f0c9162.png)
 
@@ -12,7 +12,7 @@
 ## パッチの適用手順
 
 1. 本パッチを既に適用済みでアップデートする場合は、プロジェクトから一旦 `Assets/Sunao Shader` を削除
-2. [Sunao Shader 1.4.0](https://booth.pm/ja/items/1723985) をUnityプロジェクトにインポート（旧バージョンは [こちら](http://suna.ooo/agenasulab/ss/version) からダウンロードできるようです）
+2. [Sunao Shader 1.4.2](https://booth.pm/ja/items/1723985) をUnityプロジェクトにインポート（旧バージョンは [こちら](http://suna.ooo/agenasulab/ss/version) からダウンロードできるようです）
 3. [本パッチをダウンロード](https://github.com/chigirits/LamePatchForSunaoShader/archive/master.zip) して解凍
 4. Windows Explorer にてプロジェクト内の `Assets/Sunao Shader/` フォルダを開き、その直下に含まれる `Editor` `Shader` フォルダを本リポジトリに含まれる同名のフォルダの内容でそれぞれ上書き（フォルダ内に元々存在している他のファイルは削除しないこと）
 

@@ -9,7 +9,7 @@
 // see LICENSE or http://suna.ooo/agenasulab/ss/LICENSE
 //--------------------------------------------------------------
 
-Shader "Sunao Shader/[Stencil Outline]/Opaque" {
+Shader "Sunao Shader/Transparent Sparkles" {
 
 
 	Properties {
@@ -68,7 +68,7 @@ Shader "Sunao Shader/[Stencil Outline]/Opaque" {
 		_DecalAnimY        ("Animation Y Size"          , int) = 1
 
 
-		_StencilNumb       ("Stencil Number"            , int) = 2
+		_StencilNumb       ("Stencil Number"            , int) = 4
 		[Enum(NotEqual , 6 , Equal , 3 , Less , 2 , LessEqual , 4 , Greater , 5 , GreaterEqual , 7)]
 		_StencilCompMode   ("Stencil Compare Mode"      , int) = 6
 
@@ -234,7 +234,7 @@ Shader "Sunao Shader/[Stencil Outline]/Opaque" {
 
 
 		[Enum(Off , 0 , Back , 2 , Front , 1)]
-		_Culling           ("Culling"                   , int) = 0
+		_Culling           ("Culling"                   , int) = 2
 
 		[SToggle]
 		_EnableZWrite      ("Enable Z Write"            , int) = 1
@@ -274,7 +274,7 @@ Shader "Sunao Shader/[Stencil Outline]/Opaque" {
 		[HideInInspector] _RimLightingFO   ("Rim Lighting FO"   , int) = 0
 		[HideInInspector] _OtherSettingsFO ("Other Settings FO" , int) = 0
 
-		[HideInInspector] _SunaoShaderType ("ShaderType"        , int) = 3
+		[HideInInspector] _SunaoShaderType ("ShaderType"        , int) = 1
 
 		[HideInInspector] _VersionH        ("Version H"         , int) = 1
 		[HideInInspector] _VersionM        ("Version M"         , int) = 4
@@ -290,10 +290,9 @@ Shader "Sunao Shader/[Stencil Outline]/Opaque" {
 
 		Tags {
 			"IgnoreProjector" = "True"
-			"RenderType"      = "Opaque"
-			"Queue"           = "Geometry"
+			"RenderType"      = "Transparent"
+			"Queue"           = "Transparent"
 		}
-
 
 		Pass {
 			Tags {
@@ -301,13 +300,8 @@ Shader "Sunao Shader/[Stencil Outline]/Opaque" {
 			}
 
 			Cull [_Culling]
+			Blend SrcAlpha OneMinusSrcAlpha
 			ZWrite [_EnableZWrite]
-
-			Stencil {
-				Ref  [_StencilNumb]
-				Comp Always
-				Pass Replace
-			}
 
 			CGPROGRAM
 			#pragma vertex vert
@@ -317,6 +311,8 @@ Shader "Sunao Shader/[Stencil Outline]/Opaque" {
 			#pragma target 4.5
 
 			#define PASS_FB
+			#define TRANSPARENT
+			#define SPARKLES
 
 			#include "./cginc/SunaoShader_Core.cginc"
 
@@ -330,12 +326,8 @@ Shader "Sunao Shader/[Stencil Outline]/Opaque" {
 			}
 
 			Cull Front
+			Blend SrcAlpha OneMinusSrcAlpha
 			ZWrite [_EnableZWrite]
-
-			Stencil {
-				Ref  [_StencilNumb]
-				Comp NotEqual
-			}
 
 			CGPROGRAM
 			#pragma vertex vert
@@ -345,36 +337,8 @@ Shader "Sunao Shader/[Stencil Outline]/Opaque" {
 			#pragma target 4.5
 
 			#define PASS_OL_FB
-
-			#include "./cginc/SunaoShader_OL.cginc"
-
-			ENDCG
-		}
-
-
-		Pass {
-			Tags {
-				"LightMode"  = "ForwardAdd"
-			}
-
-			Cull Front
-			BlendOp [_BlendOperation]
-			Blend One One
-			ZWrite Off
-
-			Stencil {
-				Ref  [_StencilNumb]
-				Comp NotEqual
-			}
-
-			CGPROGRAM
-			#pragma vertex vert
-			#pragma fragment frag
-			#pragma multi_compile_fwdadd
-			#pragma multi_compile_fog
-			#pragma target 4.5
-
-			#define PASS_OL_FA
+			#define TRANSPARENT
+			#define SPARKLES
 
 			#include "./cginc/SunaoShader_OL.cginc"
 
@@ -389,7 +353,7 @@ Shader "Sunao Shader/[Stencil Outline]/Opaque" {
 
 			Cull [_Culling]
 			BlendOp [_BlendOperation]
-			Blend One One
+			Blend SrcAlpha One
 			ZWrite Off
 
 			CGPROGRAM
@@ -400,8 +364,37 @@ Shader "Sunao Shader/[Stencil Outline]/Opaque" {
 			#pragma target 4.5
 
 			#define PASS_FA
+			#define TRANSPARENT
+			#define SPARKLES
 
 			#include "./cginc/SunaoShader_Core.cginc"
+
+			ENDCG
+		}
+
+
+		Pass {
+			Tags {
+				"LightMode"  = "ForwardAdd"
+			}
+
+			Cull Front
+			BlendOp [_BlendOperation]
+			Blend SrcAlpha One
+			ZWrite Off
+
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+			#pragma multi_compile_fwdadd
+			#pragma multi_compile_fog
+			#pragma target 4.5
+
+			#define PASS_OL_FA
+			#define TRANSPARENT
+			#define SPARKLES
+
+			#include "./cginc/SunaoShader_OL.cginc"
 
 			ENDCG
 		}
@@ -429,7 +422,7 @@ Shader "Sunao Shader/[Stencil Outline]/Opaque" {
 		}
 	}
 
-	FallBack "Diffuse"
+	Fallback "Transparent/Diffuse"
 
 	CustomEditor "SunaoShader.GUI"
 }

@@ -18,7 +18,12 @@
 
 ## マテリアルへの適用
 
-マテリアル設定で `Sunao Shader/Opaque Sparkles` シェーダを選択してください。
+マテリアル設定で以下のいずれかのシェーダを選択してください。
+
+- `Sunao Shader/Opaque Sparkles`
+- `Sunao Shader/Transparent Sparkles`
+
+Cutout は未対応です。Transparent で代用してください。
 
 ## パラメータの調整
 

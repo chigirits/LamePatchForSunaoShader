@@ -14,7 +14,7 @@
 1. 本パッチを既に適用済みでアップデートする場合は、プロジェクトから一旦 `Assets/Sunao Shader` を削除
 2. [Sunao Shader 1.4.2](https://booth.pm/ja/items/1723985) をUnityプロジェクトにインポート（旧バージョンは [こちら](http://suna.ooo/agenasulab/ss/version) からダウンロードできるようです）
 3. [本パッチをダウンロード](https://github.com/chigirits/LamePatchForSunaoShader/archive/master.zip) して解凍
-4. Windows Explorer にてプロジェクト内の `Assets/Sunao Shader/` フォルダを開き、その直下に含まれる `Editor` `Shader` フォルダを本リポジトリに含まれる同名のフォルダの内容でそれぞれ上書き（フォルダ内に元々存在している他のファイルは削除しないこと）
+4. Windows Explorer にてプロジェクト内の `Assets/Sunao Shader/` フォルダを開き、その直下に含まれる `Editor` および `Shader` フォルダを本リポジトリに含まれる同名のフォルダの内容でそれぞれ上書き（フォルダ内に元々存在している他のファイルは削除しないこと）
 
 ## マテリアルへの適用
 
@@ -57,6 +57,7 @@ Cutout は未対応です。Transparent で代用してください。
 
 ## Tips
 
+- ラメをのせる部分の地の色は暗めに（濃い目のチークやアイシャドウを入れる等）することをおすすめします。
 - Emission パラメータの `Advanced Settings/Use Lightning` にチェックを入れない状態では暗い環境下でも強く発光しますが、本来は反射光であるラメとしては不自然に見えると思います。チェックを入れれば自然な光り方になりますが、一方で暗くて物足りない光り方になりがちです。この場合、`Emission Color` の HDR Color ウィンドウで `Intensity` を上げてください。特にポストエフェクトが効いたワールドでの効果が期待できます。
 - Parameter Map画像の作成は以下の手順で行うと分かりやすいと思います。
   

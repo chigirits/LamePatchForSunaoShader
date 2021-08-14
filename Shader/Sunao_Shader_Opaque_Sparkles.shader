@@ -417,6 +417,7 @@ Shader "Sunao Shader/Opaque Sparkles" {
 			#pragma target 4.5
 
 			#define PASS_SC
+			#define SPARKLES
 
 			#include "./cginc/SunaoShader_SC.cginc"
 

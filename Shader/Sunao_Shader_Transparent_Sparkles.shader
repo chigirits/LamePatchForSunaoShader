@@ -423,6 +423,7 @@ Shader "Sunao Shader/Transparent Sparkles" {
 
 			#define PASS_SC
 			#define TRANSPARENT
+			#define SPARKLES
 
 			#include "./cginc/SunaoShader_SC.cginc"
 
